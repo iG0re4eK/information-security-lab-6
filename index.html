@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ИБ | лаб | 6</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <div class="wrapper">
+      <header class="site-header">
+        <div class="container">
+          <h1>Разложение числа на множители — метод Ферма</h1>
+        </div>
+      </header>
+
+      <main>
+        <div class="container">
+          <section class="steps-section" aria-labelledby="steps-title">
+            <h2 id="steps-title">Описание алгоритма</h2>
+            <div class="p-container">
+              <p>
+                Для разложения на множители нечетного чила n ищется пара чисел
+                (x, y) таких, что x<sup>2</sup> - y<sup>2</sup> = n, или (x - y)
+                * (x + y) = n. При этом числа (x + y) и (x - y) являются
+                делителями n, возможно, тривиальными (то есть одно из них равно
+                1, а другое — n).
+              </p>
+              <p>
+                В нетривиальном случае равенство x<sup>2</sup> - y<sup>2</sup> =
+                n равносильно x<sup>2</sup> - n = y<sup>2</sup>, то есть тому,
+                что x<sup>2</sup>
+                - n является квадратом.
+              </p>
+              <p>
+                Поиск квадрата такого вида начинается с x = [<math>
+                  <mroot>
+                    <mi>n</mi>
+                    <mn></mn> </mroot
+                ></math>
+                ] — наименьшего числа, при котором разность x<sup>2</sup> - n
+                неотрицательна.
+              </p>
+              <p>
+                Для каждого значения k ∈ N, начиная с k = 1, вычисляют ([<math>
+                  <mroot>
+                    <mi>n</mi>
+                    <mn></mn> </mroot
+                ></math>
+                ] + k)<sup>2</sup> - n = y<sup>2</sup>, то получено
+                разложение:<br />
+                n = x<sup>2</sup> - y<sup>2</sup> = (x + y) * (x - y) = a * b
+                <br />
+                в котором x = [<math>
+                  <mroot>
+                    <mi>n</mi>
+                    <mn></mn> </mroot
+                ></math>
+                ] + k.
+              </p>
+              <p>
+                Если оно является тривиальным и единственным, то n — простое.
+              </p>
+              <p>
+                На практике значение выражения на (k + 1)-м шаге вычисляется с
+                учетом значения на k-м шаге:<br />
+                (s + 1)<sup>2</sup> - n = s<sup>2</sup> + 2s + 1 - n,
+                <br />
+                где s = [<math>
+                  <mroot>
+                    <mi>n</mi>
+                    <mn></mn> </mroot
+                ></math>
+                ] + k.
+              </p>
+            </div>
+          </section>
+
+          <section class="input-section" aria-labelledby="input-title">
+            <h2 id="input-title">Ввод числа</h2>
+            <form id="ferma-form" autocomplete="off">
+              <label for="number-input"><strong>Число N:</strong></label>
+              <input
+                id="number-input"
+                name="n"
+                type="text"
+                inputmode="numeric"
+                required
+                placeholder="Введите целое число > 2"
+              />
+              <div class="controls">
+                <button type="submit" id="start-btn">Разложить</button>
+                <button type="reset" id="reset-btn">Сброс</button>
+              </div>
+            </form>
+          </section>
+
+          <section class="result-section" aria-labelledby="result-title" hidden>
+            <h2 id="result-title">Результат</h2>
+            <div id="result-output" class="output" aria-live="polite"></div>
+          </section>
+        </div>
+      </main>
+    </div>
+    <script src="./main.js"></script>
+  </body>
+</html>
