@@ -130,7 +130,7 @@ function rowOutputFirst(n, sNT, sT) {
   rowOutput.className = "row-output";
 
   if (sNT !== sT) {
-    rowOutput.innerHTML = `Возьмем число n = ${n}. Вычислим s = [<math><mroot><mi>${n}</mi><mn></mn> </mroot></math>] ≈ ${sNT} или s = [<math><mroot><mi>${n}</mi><mn></mn> </mroot></math>] = ${sT}`;
+    rowOutput.innerHTML = `Возьмем число n = ${n}. Вычислим s = <math><mroot><mi>${n}</mi><mn></mn> </mroot></math> ≈ ${sNT} или s = [<math><mroot><mi>${n}</mi><mn></mn> </mroot></math>] = ${sT}`;
   } else {
     rowOutput.innerHTML = `Возьмем число n = ${n}. Вычислим s = [<math><mroot><mi>${n}</mi><mn></mn> </mroot></math>] = ${sNT}`;
   }
@@ -199,21 +199,6 @@ function rowOutputError(k) {
   const rowOutput = document.createElement("div");
   rowOutput.className = "row-output";
   rowOutput.innerHTML = `Даже на k = ${k} ничего не нашли :(`;
-  resultOutput.appendChild(rowOutput);
-}
-
-function rowOutputFirst(n, sNT, sT) {
-  const rowOutput = document.createElement("div");
-  rowOutput.className = "row-output";
-
-  if (sNT !== sT) {
-    rowOutput.innerHTML = `Возьмем число n = ${n}. Вычислим s = [√${n}] ≈ ${sNT.toFixed(
-      6
-    )} или s = [√${n}] = ${sT}`;
-  } else {
-    rowOutput.innerHTML = `Возьмем число n = ${n}. Вычислим s = [√${n}] = ${sNT}`;
-  }
-
   resultOutput.appendChild(rowOutput);
 }
 
