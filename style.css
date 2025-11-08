@@ -178,6 +178,29 @@ table td {
   text-align: center;
 }
 
+.error-msg {
+  position: relative;
+}
+
+.error-msg::before {
+  content: "→";
+  position: absolute;
+  left: -3rem;
+  top: -0.1rem;
+  font-size: 1.8rem;
+  animation: look-at-error 1.5s infinite ease-in-out;
+}
+
+@keyframes look-at-error {
+  0%,
+  100% {
+    transform: translateX(-0.5rem);
+  }
+  50% {
+    transform: translateX(0.5rem);
+  }
+}
+
 @media (max-width: 1200px) {
   .container {
     max-width: 876px;

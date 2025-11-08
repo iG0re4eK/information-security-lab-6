@@ -113,7 +113,7 @@ function factorizeFerma(n, depth = 0) {
         return;
       }
 
-      if (k >= 1000) {
+      if (k >= 100000) {
         rowOutputError(k);
         return;
       }
@@ -299,7 +299,8 @@ function rowOutputFifth(primeNumbers) {
 
 function rowOutputError(k) {
   const rowOutput = document.createElement("div");
-  rowOutput.className = "row-output";
+  rowOutput.classList.add("row-output");
+  rowOutput.classList.add("error-msg");
   rowOutput.innerHTML = `Даже на k = ${k} ничего не нашли :(`;
   resultOutput.appendChild(rowOutput);
 }
