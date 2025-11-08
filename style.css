@@ -137,6 +137,16 @@ form {
   line-height: 2rem;
 }
 
+.big-font {
+  font-size: 1.2rem;
+  border-top: 2px solid var(--color-muted);
+  padding-top: 1rem;
+}
+
+.big-font:first-of-type {
+  border-top: none;
+}
+
 .row-output-table {
   max-height: 500px;
   overflow-y: auto;

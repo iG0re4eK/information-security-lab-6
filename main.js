@@ -17,6 +17,7 @@ function parseInputNumber(value) {
 
 form.addEventListener("submit", (e) => {
   e.preventDefault();
+  resetCount();
 
   const value = input.value.trim();
   const n = parseInputNumber(value);
@@ -40,6 +41,11 @@ const parametrs = [
 
 let parametrsValue = [];
 let primeNumbers = [];
+let globalCount = 0;
+
+function resetCount() {
+  globalCount = 0;
+}
 
 function calculateS(n) {
   return [Math.sqrt(n), Math.ceil(Math.sqrt(n))];
@@ -56,20 +62,20 @@ function calculateBigIntS(n) {
 function factorizeFerma(n, depth = 0) {
   let s;
   parametrsValue = [];
+  globalCount++;
 
   if (depth === 0) {
     resultOutput.innerHTML = "";
     primeNumbers = [];
   }
 
-  const indent = "&nbsp;".repeat(depth * 4);
-
   if (typeof n !== "bigint") {
     s = calculateS(n);
 
     const rowOutput = document.createElement("div");
-    rowOutput.className = "row-output";
-    rowOutput.innerHTML = `${indent}Разлагаем число n = ${n}`;
+    rowOutput.classList.add("row-output");
+    rowOutput.classList.add("big-font");
+    rowOutput.innerHTML = `<strong>Шаг ${globalCount}: </strong>Разложим число n = ${n}`;
     resultOutput.appendChild(rowOutput);
 
     rowOutputFirst(n, s[0], s[1]);
@@ -118,8 +124,9 @@ function factorizeFerma(n, depth = 0) {
     const s = calculateBigIntS(n);
 
     const rowOutput = document.createElement("div");
-    rowOutput.className = "row-output";
-    rowOutput.innerHTML = `${indent}Разлагаем число n = ${n}`;
+    rowOutput.classList.add("row-output");
+    rowOutput.classList.add("big-font");
+    rowOutput.innerHTML = `<strong>Шаг ${globalCount}: </strong>Разложим число n = ${n}`;
     resultOutput.appendChild(rowOutput);
 
     rowOutputFirstBigInt(n, s);
@@ -133,9 +140,6 @@ function factorizeFerma(n, depth = 0) {
       const sqrtY = sqrtBigInt(y);
 
       if (sqrtY !== null) {
-        const a = x + sqrtY;
-        const b = x - sqrtY;
-
         rowOutputBigIntResult(s, k, sqrtY);
 
         return;
@@ -195,7 +199,7 @@ function rowOutputFirst(n, sNT, sT) {
   rowOutput.className = "row-output";
 
   if (sNT !== sT) {
-    rowOutput.innerHTML = `Возьмем число n = ${n}. Вычислим s = <math><mroot><mi>${n}</mi><mn></mn> </mroot></math> ≈ ${sNT} или s = [<math><mroot><mi>${n}</mi><mn></mn> </mroot></math>] = ${sT}`;
+    rowOutput.innerHTML = `<strong>Шаг ${globalCount}.1:</strong> Возьмем число n = ${n}. Вычислим s = <math><mroot><mi>${n}</mi><mn></mn> </mroot></math> ≈ ${sNT} или s = [<math><mroot><mi>${n}</mi><mn></mn> </mroot></math>] = ${sT}`;
   } else {
     rowOutput.innerHTML = `Возьмем число n = ${n}. Вычислим s = [<math><mroot><mi>${n}</mi><mn></mn> </mroot></math>] = ${sNT}`;
   }
@@ -206,7 +210,9 @@ function rowOutputFirst(n, sNT, sT) {
 function rowOutputSecond() {
   const rowOutput = document.createElement("div");
   rowOutput.className = "row-output";
-  rowOutput.innerHTML = `Дальше построим таблицу, которая будет содержать значения y = (s + k)<sup>2</sup> - n и <math><mroot><mi>y</mi><mn></mn> </mroot></math> на каждом шаге итерации.<br /> Получим:`;
+
+  rowOutput.innerHTML = `<strong>Шаг ${globalCount}.2:</strong> Дальше построим таблицу, которая будет содержать значения y = (s + k)<sup>2</sup> - n и <math><mroot><mi>y</mi><mn></mn> </mroot></math> на каждом шаге итерации.<br /> Получим:<br />
+  <strong>Шаг ${globalCount}.3:</strong>`;
   resultOutput.appendChild(rowOutput);
 }
 
@@ -249,7 +255,7 @@ function rowOutputThird(parametrs, parametrsValue) {
 function rowOutputFourth(sqrtY, s, k, a, b) {
   const rowOutput = document.createElement("div");
   rowOutput.className = "row-output";
-  rowOutput.innerHTML = `<math><mroot><mi>y</mi><mn></mn></mroot></math> = ${sqrtY}<br />
+  rowOutput.innerHTML = `<strong>Шаг ${globalCount}.4:</strong> <br /> <math><mroot><mi>y</mi><mn></mn></mroot></math> = ${sqrtY}<br />
 a = s + k + <math><mroot><mi>y</mi><mn></mn></mroot></math> = ${s} + ${k} + ${sqrtY} = ${a}<br />
 b = s + k - <math><mroot><mi>y</mi><mn></mn></mroot></math> = ${s} + ${k} - ${sqrtY} = ${b}<br />
   ${a} * ${b} = ${a * b}`;
@@ -260,19 +266,34 @@ function rowOutputFifth(primeNumbers) {
   const rowOutput = document.createElement("div");
   rowOutput.className = "row-output";
 
-  rowOutput.innerHTML += `Итог: `;
+  if (primeNumbers.length === 0) {
+    rowOutput.innerHTML = `<strong>Итог:</strong> не удалось разложить на простые множители`;
+    resultOutput.appendChild(rowOutput);
+    return;
+  }
 
-  let result = 1;
+  rowOutput.innerHTML = `<strong>Итог:</strong> `;
+
+  const isBigInt = typeof primeNumbers[0] === "bigint";
+
+  let result = isBigInt ? 1n : 1;
+  let formula = "";
+
   for (let i = 0; i < primeNumbers.length; i++) {
-    result *= primeNumbers[i];
-
-    if (i === 0 || i === primeNumbers.length - 1) {
-      rowOutput.innerHTML += `${primeNumbers[i]}`;
+    if (isBigInt) {
+      result *= primeNumbers[i];
     } else {
-      rowOutput.innerHTML += ` * ${primeNumbers[i]} * `;
+      result *= primeNumbers[i];
+    }
+
+    if (i === 0) {
+      formula += `${primeNumbers[i]}`;
+    } else {
+      formula += ` * ${primeNumbers[i]}`;
     }
   }
-  rowOutput.innerHTML += ` = ${result}`;
+
+  rowOutput.innerHTML += `${formula} = ${result}`;
   resultOutput.appendChild(rowOutput);
 }
 
@@ -286,21 +307,21 @@ function rowOutputError(k) {
 function rowOutputFirstBigInt(n, s) {
   const rowOutput = document.createElement("div");
   rowOutput.className = "row-output";
-  rowOutput.innerHTML = `Возьмем число n = ${n}. Вычислим s = [<math><mroot><mi>${n}</mi><mn></mn></mroot></math>] = ${s}`;
+  rowOutput.innerHTML = `<strong>Шаг ${globalCount}.1:</strong> Возьмем число n = ${n}. Вычислим s = [<math><mroot><mi>${n}</mi><mn></mn></mroot></math>] = ${s}`;
   resultOutput.appendChild(rowOutput);
 }
 
 function rowOutputSecondBigInt() {
   const rowOutput = document.createElement("div");
   rowOutput.className = "row-output";
-  rowOutput.innerHTML = `Будем последовательно вычислять y = (s + k)² - n и проверять, является ли y квадратом целого числа.`;
+  rowOutput.innerHTML = `<strong>Шаг ${globalCount}.2:</strong> Будем последовательно вычислять y = (s + k)² - n и проверять, является ли y квадратом целого числа.`;
   resultOutput.appendChild(rowOutput);
 }
 
 function rowOutputBigIntResult(s, k, sqrtY) {
   const rowOutput = document.createElement("div");
   rowOutput.className = "row-output";
-  rowOutput.innerHTML = `a = s + k + <math><mroot><mi>y</mi><mn></mn></mroot></math> = ${s} + ${k} + ${sqrtY} = ${
+  rowOutput.innerHTML = `<strong>Шаг ${globalCount}.3:</strong> <br /> a = s + k + <math><mroot><mi>y</mi><mn></mn></mroot></math> = ${s} + ${k} + ${sqrtY} = ${
     s + k + sqrtY
   }<br>
     b = s + k - <math><mroot><mi>y</mi><mn></mn></mroot></math> = ${s} + ${k} - ${sqrtY} = ${
