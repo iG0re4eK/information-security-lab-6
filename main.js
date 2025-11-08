@@ -22,6 +22,7 @@ form.addEventListener("submit", (e) => {
   const n = parseInputNumber(value);
 
   factorizeFerma(n);
+  rowOutputFifth(primeNumbers);
 
   document.querySelector(".result-section").hidden = false;
 });
@@ -38,6 +39,7 @@ const parametrs = [
 ];
 
 let parametrsValue = [];
+let primeNumbers = [];
 
 function calculateS(n) {
   return [Math.sqrt(n), Math.ceil(Math.sqrt(n))];
@@ -51,28 +53,57 @@ function calculateBigIntS(n) {
   return guess + 1n;
 }
 
-function factorizeFerma(n) {
+function factorizeFerma(n, depth = 0) {
   let s;
   parametrsValue = [];
-  resultOutput.innerHTML = "";
+
+  if (depth === 0) {
+    resultOutput.innerHTML = "";
+    primeNumbers = [];
+  }
+
+  const indent = "&nbsp;".repeat(depth * 4);
+
   if (typeof n !== "bigint") {
     s = calculateS(n);
+
+    const rowOutput = document.createElement("div");
+    rowOutput.className = "row-output";
+    rowOutput.innerHTML = `${indent}Разлагаем число n = ${n}`;
+    resultOutput.appendChild(rowOutput);
 
     rowOutputFirst(n, s[0], s[1]);
     rowOutputSecond();
 
-    let k = 1;
+    let k = 0;
 
     while (true) {
-      const y = Math.pow(s[1] + k, 2) - n;
+      const x = s[1] + k;
+      const y = x * x - n;
       const sqrtY = Math.sqrt(y);
 
       const arr = [k, y, sqrtY];
       parametrsValue.push(arr);
 
       if (Number.isInteger(sqrtY)) {
+        const a = x + sqrtY;
+        const b = x - sqrtY;
+
         rowOutputThird(parametrs, parametrsValue);
-        rowOutputFourth(sqrtY, s[1], k);
+        rowOutputFourth(sqrtY, s[1], k, a, b);
+
+        if (!isPrime(a)) {
+          factorizeFerma(a, depth + 1);
+        } else {
+          primeNumbers.push(a);
+        }
+
+        if (!isPrime(b)) {
+          factorizeFerma(b, depth + 1);
+        } else {
+          primeNumbers.push(b);
+        }
+
         return;
       }
 
@@ -86,6 +117,11 @@ function factorizeFerma(n) {
   } else {
     const s = calculateBigIntS(n);
 
+    const rowOutput = document.createElement("div");
+    rowOutput.className = "row-output";
+    rowOutput.innerHTML = `${indent}Разлагаем число n = ${n}`;
+    resultOutput.appendChild(rowOutput);
+
     rowOutputFirstBigInt(n, s);
     rowOutputSecondBigInt();
 
@@ -97,11 +133,15 @@ function factorizeFerma(n) {
       const sqrtY = sqrtBigInt(y);
 
       if (sqrtY !== null) {
+        const a = x + sqrtY;
+        const b = x - sqrtY;
+
         rowOutputBigIntResult(s, k, sqrtY);
+
         return;
       }
 
-      if (k >= 1000000n) {
+      if (k >= 1000000000000n) {
         rowOutputError(k);
         return;
       }
@@ -123,6 +163,31 @@ function sqrtBigInt(n) {
   }
 
   return x * x === n ? x : null;
+}
+
+function isPrime(num) {
+  if (num <= 1) return false;
+  if (num <= 3) return true;
+  if (num % 2 === 0 || num % 3 === 0) return false;
+
+  for (let i = 5; i * i <= num; i += 6) {
+    if (num % i === 0 || num % (i + 2) === 0) return false;
+  }
+
+  return true;
+}
+
+function isPrimeBigInt(num) {
+  if (num <= 1n) return false;
+  if (num <= 3n) return true;
+  if (num % 2n === 0n || num % 3n === 0n) return false;
+
+  let i = 5n;
+  while (i * i <= num) {
+    if (num % i === 0n || num % (i + 2n) === 0n) return false;
+    i += 6n;
+  }
+  return true;
 }
 
 function rowOutputFirst(n, sNT, sT) {
@@ -181,17 +246,33 @@ function rowOutputThird(parametrs, parametrsValue) {
   resultOutput.appendChild(rowOutput);
 }
 
-function rowOutputFourth(sqrtY, s, k) {
+function rowOutputFourth(sqrtY, s, k, a, b) {
   const rowOutput = document.createElement("div");
   rowOutput.className = "row-output";
   rowOutput.innerHTML = `<math><mroot><mi>y</mi><mn></mn></mroot></math> = ${sqrtY}<br />
-a = s + k + <math><mroot><mi>y</mi><mn></mn></mroot></math> = ${s} + ${k} + ${sqrtY} = ${
-    s + k + sqrtY
-  }<br />
-b = s + k - <math><mroot><mi>y</mi><mn></mn></mroot></math> = ${s} + ${k} - ${sqrtY} = ${
-    s + k - sqrtY
-  }<br />
-  ${s + k + sqrtY} * ${s + k - sqrtY} = ${(s + k + sqrtY) * (s + k - sqrtY)}`;
+a = s + k + <math><mroot><mi>y</mi><mn></mn></mroot></math> = ${s} + ${k} + ${sqrtY} = ${a}<br />
+b = s + k - <math><mroot><mi>y</mi><mn></mn></mroot></math> = ${s} + ${k} - ${sqrtY} = ${b}<br />
+  ${a} * ${b} = ${a * b}`;
+  resultOutput.appendChild(rowOutput);
+}
+
+function rowOutputFifth(primeNumbers) {
+  const rowOutput = document.createElement("div");
+  rowOutput.className = "row-output";
+
+  rowOutput.innerHTML += `Итог: `;
+
+  let result = 1;
+  for (let i = 0; i < primeNumbers.length; i++) {
+    result *= primeNumbers[i];
+
+    if (i === 0 || i === primeNumbers.length - 1) {
+      rowOutput.innerHTML += `${primeNumbers[i]}`;
+    } else {
+      rowOutput.innerHTML += ` * ${primeNumbers[i]} * `;
+    }
+  }
+  rowOutput.innerHTML += ` = ${result}`;
   resultOutput.appendChild(rowOutput);
 }
 
