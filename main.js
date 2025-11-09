@@ -23,7 +23,7 @@ form.addEventListener("submit", (e) => {
   const n = parseInputNumber(value);
 
   factorizeFerma(n);
-  rowOutputFifth(primeNumbers);
+  if (n === "number") rowOutputFifth(primeNumbers);
 
   document.querySelector(".result-section").hidden = false;
 });
@@ -56,7 +56,7 @@ function calculateBigIntS(n) {
   while (guess * guess > n) {
     guess = (guess + n / guess) / 2n;
   }
-  return guess + 1n;
+  return [guess, guess + 1n];
 }
 
 function factorizeFerma(n, depth = 0) {
@@ -72,12 +72,7 @@ function factorizeFerma(n, depth = 0) {
   if (typeof n !== "bigint") {
     s = calculateS(n);
 
-    const rowOutput = document.createElement("div");
-    rowOutput.classList.add("row-output");
-    rowOutput.classList.add("big-font");
-    rowOutput.innerHTML = `<strong>Шаг ${globalCount}: </strong>Разложим число n = ${n}`;
-    resultOutput.appendChild(rowOutput);
-
+    rowOutputStart(n);
     rowOutputFirst(n, s[0], s[1]);
     rowOutputSecond();
 
@@ -123,24 +118,26 @@ function factorizeFerma(n, depth = 0) {
   } else {
     const s = calculateBigIntS(n);
 
-    const rowOutput = document.createElement("div");
-    rowOutput.classList.add("row-output");
-    rowOutput.classList.add("big-font");
-    rowOutput.innerHTML = `<strong>Шаг ${globalCount}: </strong>Разложим число n = ${n}`;
-    resultOutput.appendChild(rowOutput);
-
-    rowOutputFirstBigInt(n, s);
-    rowOutputSecondBigInt();
+    rowOutputStart(n);
+    rowOutputFirst(n, s[0], s[1]);
+    rowOutputSecond();
 
     let k = 0n;
 
     while (true) {
-      const x = s + k;
+      const x = s[1] + k;
       const y = x * x - n;
       const sqrtY = sqrtBigInt(y);
 
+      const arr = [k, y, sqrtY];
+      parametrsValue.push(arr);
+
       if (sqrtY !== null) {
-        rowOutputBigIntResult(s, k, sqrtY);
+        const a = x + sqrtY;
+        const b = x - sqrtY;
+
+        rowOutputThird(parametrs, parametrsValue);
+        rowOutputFourth(sqrtY, s[1], k, a, b);
 
         return;
       }
@@ -192,6 +189,14 @@ function isPrimeBigInt(num) {
     i += 6n;
   }
   return true;
+}
+
+function rowOutputStart(n) {
+  const rowOutput = document.createElement("div");
+  rowOutput.classList.add("row-output");
+  rowOutput.classList.add("big-font");
+  rowOutput.innerHTML = `<strong>Шаг ${globalCount}: </strong>Разложим число n = ${n}`;
+  resultOutput.appendChild(rowOutput);
 }
 
 function rowOutputFirst(n, sNT, sT) {
@@ -302,36 +307,5 @@ function rowOutputError(k) {
   rowOutput.classList.add("row-output");
   rowOutput.classList.add("error-msg");
   rowOutput.innerHTML = `Даже на k = ${k} ничего не нашли :(`;
-  resultOutput.appendChild(rowOutput);
-}
-
-function rowOutputFirstBigInt(n, s) {
-  const rowOutput = document.createElement("div");
-  rowOutput.className = "row-output";
-  rowOutput.innerHTML = `<strong>Шаг ${globalCount}.1:</strong> Возьмем число n = ${n}. Вычислим s = [<math><mroot><mi>${n}</mi><mn></mn></mroot></math>] = ${s}`;
-  resultOutput.appendChild(rowOutput);
-}
-
-function rowOutputSecondBigInt() {
-  const rowOutput = document.createElement("div");
-  rowOutput.className = "row-output";
-  rowOutput.innerHTML = `<strong>Шаг ${globalCount}.2:</strong> Будем последовательно вычислять y = (s + k)² - n и проверять, является ли y квадратом целого числа.`;
-  resultOutput.appendChild(rowOutput);
-}
-
-function rowOutputBigIntResult(s, k, sqrtY) {
-  const rowOutput = document.createElement("div");
-  rowOutput.className = "row-output";
-  rowOutput.innerHTML = `<strong>Шаг ${globalCount}.3:</strong> <br /> a = s + k + <math><mroot><mi>y</mi><mn></mn></mroot></math> = ${s} + ${k} + ${sqrtY} = ${
-    s + k + sqrtY
-  }<br>
-    b = s + k - <math><mroot><mi>y</mi><mn></mn></mroot></math> = ${s} + ${k} - ${sqrtY} = ${
-    s + k - sqrtY
-  }<br>
-    ${s + k + sqrtY} * ${s + k - sqrtY} = ${
-    (s + k + sqrtY) * (s + k - sqrtY)
-  }<br>
-  `;
-
   resultOutput.appendChild(rowOutput);
 }
