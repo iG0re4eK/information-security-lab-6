@@ -185,7 +185,21 @@ table td {
   text-align: center;
 }
 
+.error-input-msg {
+  box-shadow: 0 0 10px 1px rgb(231, 29, 29);
+  color: #e57b7b;
+  background-color: #592d2d;
+}
+
+.error-input-msg:focus {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
 .error-msg {
+  display: flex;
+  align-items: center;
+  height: 2.5rem;
   position: relative;
 }
 
@@ -193,7 +207,6 @@ table td {
   content: "→";
   position: absolute;
   left: -3rem;
-  top: -0.1rem;
   font-size: 1.8rem;
   animation: look-at-error 1.5s infinite ease-in-out;
 }

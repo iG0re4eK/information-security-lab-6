@@ -10,20 +10,63 @@ function parseInputNumber(value) {
     }
   }
 
-  const bigNum = BigInt(value);
+  return BigInt(value);
+}
 
-  return bigNum;
+function validInput(value) {
+  removeErrorInputMsg();
+
+  if (isNaN(Number(value))) {
+    addErrorInputMsg("Вы ввели строку!");
+    return false;
+  }
+
+  if (!Number.isInteger(Number(value))) {
+    addErrorInputMsg("Введите целое число!");
+    return false;
+  }
+
+  if (Number(value) < 2) {
+    addErrorInputMsg("Вы ввели число меньше 2!");
+    return false;
+  }
+
+  return true;
+}
+
+function addErrorInputMsg(msg) {
+  input.classList.add("error-input-msg");
+  const errorDiv = document.createElement("div");
+  errorDiv.className = "error-msg";
+  errorDiv.innerHTML = msg;
+  input.parentNode.appendChild(errorDiv);
+}
+
+function removeErrorInputMsg() {
+  const existingError = input.parentNode.querySelector(".error-msg");
+  if (existingError) {
+    existingError.remove();
+  }
+  input.classList.remove("error-input-msg");
 }
 
 form.addEventListener("submit", (e) => {
   e.preventDefault();
+  resultOutput.innerHTML = "";
   resetCount();
 
   const value = input.value.trim();
+
+  if (!validInput(value)) {
+    document.querySelector(".result-section").hidden = true;
+    return;
+  }
+
   const n = parseInputNumber(value);
 
   factorizeFerma(n);
-  if (n === "number") rowOutputFifth(primeNumbers);
+
+  rowOutputFifth(primeNumbers);
 
   document.querySelector(".result-section").hidden = false;
 });
@@ -31,6 +74,8 @@ form.addEventListener("submit", (e) => {
 form.addEventListener("reset", (e) => {
   resultOutput.innerHTML = "";
   document.querySelector(".result-section").hidden = true;
+
+  removeErrorInputMsg();
 });
 
 const parametrs = [
@@ -70,6 +115,12 @@ function factorizeFerma(n, depth = 0) {
   }
 
   if (typeof n !== "bigint") {
+    if (isPrime(n)) {
+      rowOutputFindPrime(n);
+      primeNumbers.push(n);
+      return;
+    }
+
     s = calculateS(n);
 
     rowOutputStart(n);
@@ -93,16 +144,20 @@ function factorizeFerma(n, depth = 0) {
         rowOutputThird(parametrs, parametrsValue);
         rowOutputFourth(sqrtY, s[1], k, a, b);
 
-        if (!isPrime(a)) {
-          factorizeFerma(a, depth + 1);
-        } else {
-          primeNumbers.push(a);
+        if (a > 1) {
+          if (!isPrime(a)) {
+            factorizeFerma(a, depth + 1);
+          } else {
+            primeNumbers.push(a);
+          }
         }
 
-        if (!isPrime(b)) {
-          factorizeFerma(b, depth + 1);
-        } else {
-          primeNumbers.push(b);
+        if (b > 1) {
+          if (!isPrime(b)) {
+            factorizeFerma(b, depth + 1);
+          } else {
+            primeNumbers.push(b);
+          }
         }
 
         return;
@@ -116,6 +171,13 @@ function factorizeFerma(n, depth = 0) {
       k++;
     }
   } else {
+    if (isPrimeBigInt(n)) {
+      rowOutputFindPrime(n);
+      primeNumbers.push(n);
+
+      return;
+    }
+
     const s = calculateBigIntS(n);
 
     rowOutputStart(n);
@@ -138,6 +200,22 @@ function factorizeFerma(n, depth = 0) {
 
         rowOutputThird(parametrs, parametrsValue);
         rowOutputFourth(sqrtY, s[1], k, a, b);
+
+        if (a > 1n) {
+          if (!isPrimeBigInt(a)) {
+            factorizeFerma(a, depth + 1);
+          } else {
+            primeNumbers.push(a);
+          }
+        }
+
+        if (b > 1n) {
+          if (!isPrimeBigInt(b)) {
+            factorizeFerma(b, depth + 1);
+          } else {
+            primeNumbers.push(b);
+          }
+        }
 
         return;
       }
@@ -183,12 +261,112 @@ function isPrimeBigInt(num) {
   if (num <= 3n) return true;
   if (num % 2n === 0n || num % 3n === 0n) return false;
 
+  const smallPrimes = [
+    5n,
+    7n,
+    11n,
+    13n,
+    17n,
+    19n,
+    23n,
+    29n,
+    31n,
+    37n,
+    41n,
+    43n,
+    47n,
+  ];
+  for (const prime of smallPrimes) {
+    if (num === prime) return true;
+    if (num % prime === 0n) return false;
+  }
+
+  if (num > 1000000n) {
+    return isProbablePrime(num, 5);
+  }
+
   let i = 5n;
-  while (i * i <= num) {
+  while (i * i <= num && i < 100000n) {
     if (num % i === 0n || num % (i + 2n) === 0n) return false;
     i += 6n;
   }
+
   return true;
+}
+
+function isProbablePrime(n, k) {
+  if (n <= 1n) return false;
+  if (n <= 3n) return true;
+  if (n % 2n === 0n) return false;
+
+  let r = 0n;
+  let d = n - 1n;
+  while (d % 2n === 0n) {
+    d /= 2n;
+    r += 1n;
+  }
+
+  for (let i = 0; i < k; i++) {
+    const a = getRandomBigInt(2n, n - 2n);
+    let x = modPow(a, d, n);
+
+    if (x === 1n || x === n - 1n) continue;
+
+    let continueLoop = false;
+    for (let j = 1n; j < r; j++) {
+      x = modPow(x, 2n, n);
+      if (x === n - 1n) {
+        continueLoop = true;
+        break;
+      }
+    }
+
+    if (!continueLoop) return false;
+  }
+
+  return true;
+}
+
+function modPow(base, exponent, modulus) {
+  if (modulus === 1n) return 0n;
+
+  let result = 1n;
+  base = base % modulus;
+
+  while (exponent > 0n) {
+    if (exponent % 2n === 1n) {
+      result = (result * base) % modulus;
+    }
+    exponent = exponent >> 1n;
+    base = (base * base) % modulus;
+  }
+
+  return result;
+}
+
+function getRandomBigInt(min, max) {
+  const range = max - min;
+  const bits = range.toString(2).length;
+  let result;
+
+  do {
+    result = BigInt(
+      "0b" +
+        Array.from({ length: bits }, () =>
+          Math.random() > 0.5 ? "1" : "0"
+        ).join("")
+    );
+  } while (result > range);
+
+  return result + min;
+}
+
+function rowOutputFindPrime(n) {
+  const rowOutput = document.createElement("div");
+  rowOutput.classList.add("row-output");
+  rowOutput.classList.add("big-font");
+  rowOutput.innerHTML = `<strong>Шаг ${globalCount}: </strong>n = ${n} является простым`;
+  resultOutput.appendChild(rowOutput);
 }
 
 function rowOutputStart(n) {
