@@ -137,6 +137,13 @@ form {
   line-height: 2rem;
 }
 
+.output,
+.row-output,
+.big-font {
+  word-break: break-all;
+  overflow-wrap: break-word;
+}
+
 .big-font {
   font-size: 1.2rem;
   border-top: 2px solid var(--color-muted);

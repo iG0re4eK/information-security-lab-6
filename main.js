@@ -142,7 +142,7 @@ function factorizeFerma(n, depth = 0) {
         return;
       }
 
-      if (k >= 1000000000000n) {
+      if (k >= 100000n) {
         rowOutputError(k);
         return;
       }
