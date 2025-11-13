@@ -121,6 +121,11 @@ function factorizeFerma(n, depth = 0) {
       return;
     }
 
+    while (n % 2 === 0) {
+      primeNumbers.push(2);
+      n = Math.floor(n / 2);
+    }
+
     s = calculateS(n);
 
     rowOutputStart(n);
@@ -176,6 +181,11 @@ function factorizeFerma(n, depth = 0) {
       primeNumbers.push(n);
 
       return;
+    }
+
+    while (n % 2 === 0) {
+      primeNumbers.push(2);
+      n = Math.floor(n / 2);
     }
 
     const s = calculateBigIntS(n);
