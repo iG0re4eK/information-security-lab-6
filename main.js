@@ -115,15 +115,19 @@ function factorizeFerma(n, depth = 0) {
   }
 
   if (typeof n !== "bigint") {
+    while (n % 2 === 0) {
+      primeNumbers.push(2);
+      rowOutputFindNumDivTwo(n);
+      n = n / 2;
+      globalCount++;
+      if (n < 2) return;
+    }
+
     if (isPrime(n)) {
       rowOutputFindPrime(n);
       primeNumbers.push(n);
+      globalCount++;
       return;
-    }
-
-    while (n % 2 === 0) {
-      primeNumbers.push(2);
-      n = n / 2;
     }
 
     s = calculateS(n);
@@ -176,16 +180,19 @@ function factorizeFerma(n, depth = 0) {
       k++;
     }
   } else {
+    while (n % 2n === 0n) {
+      primeNumbers.push(2n);
+      rowOutputFindNumDivTwo(2n);
+      n = n / 2n;
+      globalCount++;
+      if (n < 2n) return;
+    }
+
     if (isPrimeBigInt(n)) {
       rowOutputFindPrime(n);
       primeNumbers.push(n);
-
+      globalCount++;
       return;
-    }
-
-    while (n % 2n === 0n) {
-      primeNumbers.push(2n);
-      n = n / 2n;
     }
 
     const s = calculateBigIntS(n);
@@ -376,6 +383,16 @@ function rowOutputFindPrime(n) {
   rowOutput.classList.add("row-output");
   rowOutput.classList.add("big-font");
   rowOutput.innerHTML = `<strong>Шаг ${globalCount}: </strong>n = ${n} является простым`;
+  resultOutput.appendChild(rowOutput);
+}
+
+function rowOutputFindNumDivTwo(n) {
+  const rowOutput = document.createElement("div");
+  rowOutput.classList.add("row-output");
+  rowOutput.classList.add("big-font");
+  rowOutput.innerHTML = `<strong>Шаг ${globalCount}: </strong>${n} = ${
+    n / 2
+  } * 2`;
   resultOutput.appendChild(rowOutput);
 }
 
